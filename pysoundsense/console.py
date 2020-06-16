@@ -1,10 +1,9 @@
 import argparse
-import pprint
 
+from PySide2.QtWidgets import QApplication
 from loguru import logger
 
 from . import (
-    ExitCode,
     APPLICATION_NAME,
     __version__,
     LOGGING_LEVEL,
@@ -13,8 +12,7 @@ from . import (
     LOG_ROTATION,
     LOG_RETENTION,
 )
-from .sounds import yield_sounds
-from .gamelog import watch_game_log
+from .ui.mainwindow import MainWindow
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
@@ -22,8 +20,12 @@ def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("pack_path", metavar="pack-path", help="Path to the sound pack")
-    parser.add_argument("game_log", metavar="game-log", help="Path to the game log")
+    parser.add_argument(
+        "game_log_path", metavar="game-log", help="Path to the game log", nargs="?"
+    )
+    parser.add_argument(
+        "pack_path", metavar="pack", help="Path to the sound pack", nargs="?"
+    )
     parser.add_argument(
         "--interval",
         "-i",
@@ -66,14 +68,9 @@ def get_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run(arguments: argparse.Namespace) -> ExitCode:
+def run(arguments: argparse.Namespace) -> int:
     logger.info("Running {} v{}", APPLICATION_NAME, __version__)
-    all_sounds = list(yield_sounds(arguments.pack_path))
-
-    for line in watch_game_log(arguments.game_log, interval=arguments.interval):
-        logger.info(line)
-        for sounds in all_sounds:
-            if sound := sounds.match(line):
-                pprint.pprint(sound)
-
-    return ExitCode.Success
+    application = QApplication()
+    window = MainWindow(arguments.game_log_path, arguments.pack_path)
+    window.show()
+    return application.exec_()
