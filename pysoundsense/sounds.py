@@ -6,6 +6,7 @@ import dataclasses
 import enum
 import os
 import pathlib
+import random
 import re
 import typing as T
 
@@ -105,11 +106,6 @@ class SoundFile:
     weight: int = 100
 
 
-class _Infinity(int):
-    def __lt__(self, other: int) -> bool:
-        return False
-
-
 @dataclasses.dataclass
 class Sound:
     log_pattern: T.Pattern
@@ -117,7 +113,7 @@ class Sound:
     ansi_format: str = ""
     ansi_pattern: str = ""
     channel: T.Optional[str] = None
-    concurrency: T.Union[_Infinity, int] = _Infinity()
+    concurrency: T.Optional[int] = None
     delay: int = 0
     halt_on_match: bool = False
     loop: T.Optional[SoundLoop] = None
@@ -127,6 +123,16 @@ class Sound:
     timeout: int = 0
 
     files: T.List[SoundFile] = dataclasses.field(default_factory=list)
+
+    def get_file(self) -> T.Optional[SoundFile]:
+        if not self.files:
+            return None
+
+        if self.probability >= random.randint(0, 100):
+            return None
+
+        choice = random.choices(self.files, [file.weight for file in self.files])
+        return choice[0]
 
 
 @dataclasses.dataclass
@@ -183,7 +189,7 @@ def parse_sounds(path: Path) -> Sounds:
     soup = bs4.BeautifulSoup(data, features="lxml")
     sounds_element = soup.sounds
     if not sounds_element:
-        raise ParseError(f'No top-level "sounds"-element found in {path!r}')
+        raise ParseError(f'Missing required top-level "sounds"-element')
 
     sounds = Sounds(*_get_required_attributes(sounds_element))
     for key, value in _get_optional_attributes(sounds_element).items():
