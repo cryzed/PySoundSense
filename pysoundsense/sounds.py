@@ -100,7 +100,6 @@ _ATTRIBUTE_TYPES = {
 @dataclasses.dataclass
 class SoundFile:
     file_name: str
-
     balance_adjustment: int = 0
     delay: int = 0
     playlist: bool = False
@@ -112,7 +111,6 @@ class SoundFile:
 @dataclasses.dataclass
 class Sound:
     log_pattern: T.Pattern
-
     ansi_format: str = ""
     ansi_pattern: str = ""
     channel: T.Optional[str] = None

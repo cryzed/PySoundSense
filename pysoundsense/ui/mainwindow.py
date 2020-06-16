@@ -7,7 +7,7 @@ from .mainwindow_ui import Ui_MainWindow
 
 class MainWindow(QMainWindow):
     def __init__(
-        self, game_log_path: T.Optional[str] = None, pack_path: T.Optional[str] = None
+        self, game_log_path: T.Optional[str] = None, pack_path: T.Optional[str] = None,
     ):
         super().__init__()
         self.game_log_path = game_log_path

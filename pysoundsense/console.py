@@ -26,13 +26,6 @@ def get_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "pack_path", metavar="pack", help="Path to the sound pack", nargs="?"
     )
-    parser.add_argument(
-        "--interval",
-        "-i",
-        type=float,
-        default=1.0,
-        help="Frequency at which the game log is checked for updates",
-    )
 
     parser.add_argument(
         "--logging-level",
