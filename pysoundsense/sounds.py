@@ -6,7 +6,6 @@ import dataclasses
 import enum
 import os
 import pathlib
-import random
 import re
 import typing as T
 
@@ -94,6 +93,7 @@ _ATTRIBUTE_TYPES = {
     # Hack to translate "true" to "start", which can be found in the official SoundSense
     # pack files
     ("sound", "loop"): lambda value: SoundLoop("start" if value == "true" else value),
+    ("soundfile", "weight"): int,
 }
 
 
@@ -106,6 +106,9 @@ class SoundFile:
     random_balance: bool = False
     volume_adjustment: int = 0
     weight: int = 100
+
+    def __hash__(self):
+        return hash(self.file_name)
 
 
 @dataclasses.dataclass
@@ -125,15 +128,8 @@ class Sound:
 
     files: T.List[SoundFile] = dataclasses.field(default_factory=list)
 
-    def get_file(self) -> T.Optional[SoundFile]:
-        if not self.files:
-            return None
-
-        if self.probability < random.randint(0, 100):
-            return None
-
-        choice = random.choices(self.files, [int(file.weight) for file in self.files])
-        return choice[0]
+    def __hash__(self):
+        return hash(self.log_pattern)
 
 
 @dataclasses.dataclass
@@ -144,11 +140,6 @@ class Sounds:
     strict_attributions: T.Optional[bool] = None
 
     sounds: T.List[Sound] = dataclasses.field(default_factory=list)
-
-    def match(self, text: str) -> T.Optional[Sound]:
-        for sound in self.sounds:
-            if sound.log_pattern.match(text):
-                return sound
 
 
 def _get_required_attributes(element: bs4.Tag) -> T.List[T.Any]:
