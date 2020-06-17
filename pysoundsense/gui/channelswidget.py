@@ -15,7 +15,7 @@ class ChannelsWidget(QWidget):
         self.ui.setupUi(self)
 
     def add_channel(self, name: str) -> None:
-        label = QLabel(name, self)
+        label = QLabel(f"{name.capitalize()}:", self)
         slider = QSlider(Qt.Horizontal)
         slider.setMaximum(100)
         slider.setValue(100)

@@ -24,6 +24,7 @@ class GameLogWatcher(QThread):
     def stop(self):
         self._stop_event.set()
 
+    @logger.catch
     def run(self):
         for line in watch_game_log(self.game_log_path):
             if self._stop_event.is_set():
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.volume.valueChanged.connect(self.on_volume_changed)
         self.ui.channels.volume_changed.connect(self.on_channel_volume_changed)
 
         self.game_log_watcher: T.Optional[GameLogWatcher] = None
@@ -72,8 +74,11 @@ class MainWindow(QMainWindow):
             self.media_player.setMedia(QUrl.fromLocalFile(file.file_name))
             self.media_player.play()
 
+    def on_volume_changed(self, volume: int) -> None:
+        logger.debug("Volume: {}%", volume)
+
     def on_channel_volume_changed(self, channel: str, volume: int) -> None:
-        logger.info("Channel volume: {!r} set to {}", channel, volume)
+        logger.debug("{!r} channel volume: {}%", channel, volume)
 
     def load_game_log(self, path: Path) -> None:
         if self.game_log_watcher:

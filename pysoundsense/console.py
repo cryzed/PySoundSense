@@ -12,7 +12,7 @@ from . import (
     LOG_ROTATION,
     LOG_RETENTION,
 )
-from .ui.mainwindow import MainWindow
+from .gui.mainwindow import MainWindow
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
