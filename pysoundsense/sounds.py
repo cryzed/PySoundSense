@@ -132,7 +132,7 @@ class Sound:
         if self.probability < random.randint(0, 100):
             return None
 
-        choice = random.choices(self.files, [file.weight for file in self.files])
+        choice = random.choices(self.files, [int(file.weight) for file in self.files])
         return choice[0]
 
 
