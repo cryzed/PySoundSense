@@ -6,7 +6,6 @@ exactly like the original, with the exceptions of currently missing support for:
 
 - `balanceadjustment` (not possible using `QMediaPlayer`)
 - `randombalance` (not possible u sing `QMediaPlayer`)
-- `volumeadjustment` (planned)
 - `ansiformat` (planned)
 - `ansipattern` (planned)
 
