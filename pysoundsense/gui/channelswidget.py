@@ -107,6 +107,8 @@ class Channel(QObject):
         if sound.loop is Loop.Stop:
             logger.trace("Stopping loop player")
             self._loop_player.stop()
+            self._loop_playlist.clear()
+            self._loop_sound = None
         else:
             logger.trace("Pausing loop player, for one-shot sound")
             self._loop_player.pause()
@@ -123,7 +125,26 @@ class Channel(QObject):
         self._one_shot_player.setVolume(volume)
 
     def set_threshold(self, threshold: PlaybackThreshold) -> None:
+        logger.trace("Setting channel threshold: {!r}", threshold)
         self.threshold = threshold
+
+        logger.trace("Have loop sound: {!r}", self._loop_sound)
+        if not self._loop_sound:
+            return
+
+        if self._loop_sound.playback_threshold > threshold:
+            logger.trace("Stopping loop player, new threshold too low")
+            self._loop_playlist.clear()
+            self._loop_player.stop()
+            return
+
+        logger.trace("Loop player state: {!r}", self._loop_player.state())
+        if (
+            self._loop_sound.playback_threshold <= threshold
+            and self._loop_player.state() == QMediaPlayer.StoppedState
+        ):
+            logger.trace("Replaying sound: {!r} in loop player from stopped state")
+            self.play_sound(self._loop_sound)
 
 
 class ChannelsWidget(QWidget):
