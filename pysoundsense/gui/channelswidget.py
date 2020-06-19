@@ -153,16 +153,16 @@ class ChannelsWidget(QWidget):
             return
 
         self._channels[name] = Channel(name, self)
-        label = QLabel(f"{name.capitalize()}:", self)
-        slider = QSlider(Qt.Horizontal)
-        slider.setMaximum(100)
-        slider.setValue(100)
+        channel = QLabel(f"{name.capitalize()}:", self)
+        volume = QSlider(Qt.Horizontal)
+        volume.setMaximum(100)
+        volume.setValue(100)
 
         def volume_changed() -> None:
-            self.on_channel_volume_changed(name, slider.value())
+            self.on_channel_volume_changed(name, volume.value())
 
         # noinspection PyUnresolvedReferences
-        slider.valueChanged.connect(volume_changed)
+        volume.valueChanged.connect(volume_changed)
 
         threshold = QComboBox(self)
         for member in PlaybackThreshold:
@@ -179,8 +179,8 @@ class ChannelsWidget(QWidget):
         row = self.ui.layout.rowCount()
         self.ui.layout.setColumnStretch(1, 1)
         self.ui.layout.setColumnStretch(2, 0)
-        self.ui.layout.addWidget(label, row=row, column=0)
-        self.ui.layout.addWidget(slider, row=row, column=1)
+        self.ui.layout.addWidget(channel, row=row, column=0)
+        self.ui.layout.addWidget(volume, row=row, column=1)
         self.ui.layout.addWidget(threshold, row=row, column=2)
 
     def play_sound(self, sound: Sound) -> None:
