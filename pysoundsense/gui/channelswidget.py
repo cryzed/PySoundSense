@@ -106,9 +106,9 @@ class Channel(QObject):
             return
         if sound.loop is Loop.Stop:
             logger.trace("Stopping loop player")
-            self._loop_player.stop()
-            self._loop_playlist.clear()
             self._loop_sound = None
+            self._loop_playlist.clear()
+            self._loop_player.stop()
         else:
             logger.trace("Pausing loop player, for one-shot sound")
             self._loop_player.pause()
