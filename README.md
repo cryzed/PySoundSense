@@ -9,7 +9,6 @@ exactly like the original, with the exceptions of currently missing support for:
 - `volumeadjustment` (planned)
 - `ansiformat` (planned)
 - `ansipattern` (planned)
-- `playbackthreshhold` (sic) (planned) 
 
 
 ## Screenshots
