@@ -1,7 +1,7 @@
 from PySide2.QtMultimedia import QAudio
 
 
-def logarithmic_to_linear_volume(volume: int) -> int:
+def logarithmic_to_linear_volume(volume: float) -> float:
     scaled = volume / 100
     linear_volume = QAudio.convertVolume(
         scaled, QAudio.LogarithmicVolumeScale, QAudio.LinearVolumeScale
@@ -9,7 +9,7 @@ def logarithmic_to_linear_volume(volume: int) -> int:
     return linear_volume * 100
 
 
-def linear_to_decibel_volume(volume: int) -> int:
+def linear_to_decibel_volume(volume: float) -> float:
     scaled = volume / 100
     decibel = QAudio.convertVolume(
         scaled, QAudio.LinearVolumeScale, QAudio.DecibelVolumeScale
@@ -17,14 +17,14 @@ def linear_to_decibel_volume(volume: int) -> int:
     return decibel
 
 
-def decibel_to_linear_volume(decibel: int) -> int:
+def decibel_to_linear_volume(decibel: float) -> float:
     linear_volume = QAudio.convertVolume(
         decibel, QAudio.DecibelVolumeScale, QAudio.LinearVolumeScale
     )
     return linear_volume * 100
 
 
-def add_decibel_to_linear_volume(volume: int, decibel: int) -> int:
+def add_decibel_to_linear_volume(volume: float, decibel: float) -> float:
     volume_in_decibel = linear_to_decibel_volume(volume)
     volume_in_decibel += decibel
     return decibel_to_linear_volume(volume_in_decibel)

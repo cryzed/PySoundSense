@@ -80,7 +80,7 @@ class SoundLoop(enum.Enum):
     Stop = "stop"
 
 
-_ATTRIBUTE_TYPES = {
+_ATTRIBUTE_TYPES: T.Dict[T.Tuple[str, str], T.Callable[[T.Any], T.Any]] = {
     ("sounds", "strict_attributions"): bool,
     ("sound", "log_pattern"): re.compile,
     ("sound", "concurrency"): int,
@@ -107,7 +107,7 @@ class SoundFile:
     volume_adjustment: int = 0
     weight: int = 100
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.file_name)
 
 
@@ -128,18 +128,23 @@ class Sound:
 
     files: T.List[SoundFile] = dataclasses.field(default_factory=list)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.log_pattern)
 
 
 @dataclasses.dataclass
 class Sounds:
+    path: str
+
     default_ansi_color: str = ""
     default_ansi_format: str = ""
     default_ansi_pattern: str = ""
     strict_attributions: T.Optional[bool] = None
 
     sounds: T.List[Sound] = dataclasses.field(default_factory=list)
+
+    def __hash__(self) -> int:
+        return hash(self.path)
 
 
 def _get_required_attributes(element: bs4.Tag) -> T.List[T.Any]:
@@ -183,7 +188,7 @@ def parse_sounds(path: Path) -> Sounds:
     if not sounds_element:
         raise ParseError(f'Missing required top-level "sounds"-element')
 
-    sounds = Sounds(*_get_required_attributes(sounds_element))
+    sounds = Sounds(str(path), *_get_required_attributes(sounds_element))
     for key, value in _get_optional_attributes(sounds_element).items():
         setattr(sounds, key, value)
 

@@ -47,13 +47,15 @@ class MainWindow(QMainWindow):
         self._game_log_watcher: T.Optional[GameLogWatcher] = None
         self._sounds: T.List[Sound] = []
 
-        game_log_path = pathlib.Path(game_log_path)
-        if game_log_path.is_file():
-            self.load_game_log(game_log_path)
+        if game_log_path:
+            game_log_path = pathlib.Path(game_log_path)
+            if game_log_path.is_file():
+                self.load_game_log(game_log_path)
 
-        pack_path = pathlib.Path(pack_path)
-        if pack_path.is_dir():
-            self.load_sounds(pack_path)
+        if pack_path:
+            pack_path = pathlib.Path(pack_path)
+            if pack_path.is_dir():
+                self.load_sounds(pack_path)
 
     def on_new_game_log(self, line: str) -> None:
         logger.debug("Game log: {!r}", line)
@@ -75,7 +77,7 @@ class MainWindow(QMainWindow):
 
         self._game_log_watcher = GameLogWatcher(path, self)
         # noinspection PyUnresolvedReferences
-        self._game_log_watcher.new_log.connect(self.on_new_game_log)
+        self._game_log_watcher.new_log.connect(self.on_new_game_log)  # type: ignore
         self._game_log_watcher.start()
 
     def load_sounds(self, path: Path) -> None:

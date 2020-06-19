@@ -15,10 +15,12 @@ from ..types_ import Number
 
 
 class Channel(QObject):
-    def __init__(self, name: str, parent: T.Optional[QObject] = None) -> None:
+    def __init__(
+        self, name: T.Optional[str], parent: T.Optional[QObject] = None
+    ) -> None:
         super().__init__(parent)
         self.name = name
-        self.raw_volume: int = 100
+        self.raw_volume: Number = 100
 
         self._loop_sound: T.Optional[Sound] = None
         self._loop_player = QMediaPlayer(self)
@@ -44,12 +46,17 @@ class Channel(QObject):
             logger.trace("Loop playlist is empty, not queueing a new file")
             return
 
-        sound = self._loop_sound
-        indices = range(len(sound.files))
-        index = random.choices(indices, [file.weight for file in sound.files])[0]
+        if not self._loop_sound:
+            return
+
+        # Sound is guaranteed to exist at this point
+        indices = range(len(self._loop_sound.files))
+        index = random.choices(
+            indices, [file.weight for file in self._loop_sound.files]
+        )[0]
         logger.trace(
             "Loop player playing file: {!r} at playlist index: {}",
-            sound.files[index],
+            self._loop_sound.files[index],
             index,
         )
         self._loop_playlist.setCurrentIndex(index)
@@ -122,9 +129,9 @@ class ChannelsWidget(QWidget):
         self.ui = Ui_ChannelsWidget()
         self.ui.setupUi(self)
 
-        self._channels: T.Dict[str, Channel] = {}
+        self._channels: T.Dict[T.Optional[str], Channel] = {}
         self._last_played: T.Dict[Sound, float] = collections.defaultdict(float)
-        self._volume = 100
+        self._volume: Number = 100
 
     def clear(self) -> None:
         for channel in self._channels.values():
@@ -196,7 +203,7 @@ class ChannelsWidget(QWidget):
             )
             channel.set_volume(relative_volume)
 
-    def on_channel_volume_changed(self, channel: str, volume: int) -> None:
+    def on_channel_volume_changed(self, channel: T.Optional[str], volume: int) -> None:
         linear_volume = logarithmic_to_linear_volume(volume)
         channel = self._channels[channel]
         channel.raw_volume = linear_volume
