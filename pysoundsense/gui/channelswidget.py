@@ -3,14 +3,15 @@ import random
 import time
 import typing as T
 
+from PySide2 import QtCore
 from PySide2.QtCore import QObject, Qt, QUrl, QTimer
 from PySide2.QtMultimedia import QMediaPlayer, QAudio, QMediaPlaylist
-from PySide2.QtWidgets import QWidget, QLabel, QSlider, QLayoutItem
+from PySide2.QtWidgets import QWidget, QLabel, QSlider, QLayoutItem, QComboBox
 from loguru import logger
 
 from .channelswidget_ui import Ui_ChannelsWidget
 from .utils import logarithmic_to_linear_volume
-from ..sounds import Sound, SoundLoop
+from ..sounds import Sound, Loop, PlaybackThreshold
 from ..types_ import Number
 
 
@@ -21,6 +22,7 @@ class Channel(QObject):
         super().__init__(parent)
         self.name = name
         self.base_volume: Number = 100
+        self.threshold = PlaybackThreshold.Everything
 
         self._loop_sound: T.Optional[Sound] = None
         self._loop_player = QMediaPlayer(self)
@@ -79,7 +81,11 @@ class Channel(QObject):
         self._loop_player.play()
 
     def play_sound(self, sound: Sound) -> None:
-        if sound.loop is SoundLoop.Start:
+        if sound.playback_threshold > self.threshold:
+            logger.trace("Ignoring sound {!r} because of threshold", sound)
+            return
+
+        if sound.loop is Loop.Start:
             self._loop_sound = sound
             # New looping sound, rebuild playlist
             self._loop_playlist.clear()
@@ -98,7 +104,7 @@ class Channel(QObject):
                 "Loop player playing file: {!r} at playlist index: {}", file, index,
             )
             return
-        if sound.loop is SoundLoop.Stop:
+        if sound.loop is Loop.Stop:
             logger.trace("Stopping loop player")
             self._loop_player.stop()
         else:
@@ -115,6 +121,9 @@ class Channel(QObject):
         volume = round(volume)
         self._loop_player.setVolume(volume)
         self._one_shot_player.setVolume(volume)
+
+    def set_threshold(self, threshold: PlaybackThreshold) -> None:
+        self.threshold = threshold
 
 
 class ChannelsWidget(QWidget):
@@ -149,16 +158,30 @@ class ChannelsWidget(QWidget):
         slider.setMaximum(100)
         slider.setValue(100)
 
-        def closure() -> None:
+        def volume_changed() -> None:
             self.on_channel_volume_changed(name, slider.value())
 
         # noinspection PyUnresolvedReferences
-        slider.valueChanged.connect(closure)
+        slider.valueChanged.connect(volume_changed)
+
+        threshold = QComboBox(self)
+        for member in PlaybackThreshold:
+            threshold.addItem(member.name, member)
+
+        # noinspection PyCallingNonCallable
+        @QtCore.Slot(int)
+        def threshold_changed(index: int) -> None:
+            self.on_channel_threshold_changed(name, index, threshold)
+
+        # noinspection PyUnresolvedReferences
+        threshold.currentIndexChanged.connect(threshold_changed)
 
         row = self.ui.layout.rowCount()
         self.ui.layout.setColumnStretch(1, 1)
+        self.ui.layout.setColumnStretch(2, 0)
         self.ui.layout.addWidget(label, row=row, column=0)
         self.ui.layout.addWidget(slider, row=row, column=1)
+        self.ui.layout.addWidget(threshold, row=row, column=2)
 
     def play_sound(self, sound: Sound) -> None:
         if not sound.files:
@@ -195,7 +218,7 @@ class ChannelsWidget(QWidget):
             )
             channel.set_volume(relative_volume)
 
-    def on_channel_volume_changed(self, channel: T.Optional[str], volume: int) -> None:
+    def on_channel_volume_changed(self, channel: str, volume: int) -> None:
         linear_volume = logarithmic_to_linear_volume(volume)
         channel = self._channels[channel]
         channel.base_volume = linear_volume
@@ -206,3 +229,9 @@ class ChannelsWidget(QWidget):
         logger.trace(
             "Adjusting channel {!r} volume to {}", channel.name, relative_volume
         )
+
+    def on_channel_threshold_changed(
+        self, channel: str, index: int, sender: QComboBox
+    ) -> None:
+        threshold = sender.itemData(index, Qt.UserRole)
+        self._channels[channel].set_threshold(threshold)

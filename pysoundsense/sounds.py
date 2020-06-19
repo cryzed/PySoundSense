@@ -75,9 +75,17 @@ _ATTRIBUTE_TRANSLATION = {
 }
 
 
-class SoundLoop(enum.Enum):
+class Loop(enum.Enum):
     Start = "start"
     Stop = "stop"
+
+
+class PlaybackThreshold(enum.IntEnum):
+    Everything = 4
+    Fluff = 3
+    Important = 2
+    Critical = 1
+    Nothing = 0
 
 
 _ATTRIBUTE_TYPES: T.Dict[T.Tuple[str, str], T.Callable[[T.Any], T.Any]] = {
@@ -85,14 +93,16 @@ _ATTRIBUTE_TYPES: T.Dict[T.Tuple[str, str], T.Callable[[T.Any], T.Any]] = {
     ("sound", "log_pattern"): re.compile,
     ("sound", "concurrency"): int,
     ("sound", "delay"): int,
-    ("sound", "playback_threshold"): int,
+    ("sound", "playback_threshold"): lambda value: PlaybackThreshold(
+        min(4, int(value))
+    ),
     ("sound", "probability"): int,
     ("sound", "timeout"): int,
     ("sound", "halt_on_match"): bool,
     ("sound", "random_balance"): bool,
     # Hack to translate "true" to "start", which can be found in the official SoundSense
     # pack files
-    ("sound", "loop"): lambda value: SoundLoop("start" if value == "true" else value),
+    ("sound", "loop"): lambda value: Loop("start" if value == "true" else value),
     ("soundfile", "weight"): int,
 }
 
@@ -120,8 +130,8 @@ class Sound:
     concurrency: T.Optional[int] = None
     delay: int = 0
     halt_on_match: bool = False
-    loop: T.Optional[SoundLoop] = None
-    playback_threshold: int = 0
+    loop: T.Optional[Loop] = None
+    playback_threshold: PlaybackThreshold = PlaybackThreshold.Nothing
     probability: int = 100
     random_balance: bool = False
     timeout: int = 0
