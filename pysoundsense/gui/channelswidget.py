@@ -81,7 +81,6 @@ class Channel(QObject):
     def play_sound(self, sound: Sound) -> None:
         if sound.loop is SoundLoop.Start:
             self._loop_sound = sound
-
             # New looping sound, rebuild playlist
             self._loop_playlist.clear()
             for file in sound.files:
@@ -140,14 +139,12 @@ class ChannelsWidget(QWidget):
             if widget:
                 widget.deleteLater()
 
-    def add_channel(self, name: T.Optional[str]) -> None:
+    def add_channel(self, name: str) -> None:
         if name in self._channels:
             return
 
         self._channels[name] = Channel(name, self)
-
-        friendly_name = name.capitalize() if name else "Default"
-        label = QLabel(f"{friendly_name}:", self)
+        label = QLabel(f"{name.capitalize()}:", self)
         slider = QSlider(Qt.Horizontal)
         slider.setMaximum(100)
         slider.setValue(100)
@@ -158,10 +155,10 @@ class ChannelsWidget(QWidget):
         # noinspection PyUnresolvedReferences
         slider.valueChanged.connect(closure)
 
-        row_count = self.ui.layout.rowCount()
+        row = self.ui.layout.rowCount()
         self.ui.layout.setColumnStretch(1, 1)
-        self.ui.layout.addWidget(label, row=row_count, column=0)
-        self.ui.layout.addWidget(slider, row=row_count, column=1)
+        self.ui.layout.addWidget(label, row=row, column=0)
+        self.ui.layout.addWidget(slider, row=row, column=1)
 
     def play_sound(self, sound: Sound) -> None:
         if not sound.files:

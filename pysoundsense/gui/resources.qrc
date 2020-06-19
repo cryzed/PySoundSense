@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
     <file alias="DwarfFortressVan.ttf">resources/DwarfFortressVan.ttf</file>
+    <file alias="logo.png">resources/logo.png</file>
   </qresource>
 </RCC>

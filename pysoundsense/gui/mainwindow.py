@@ -7,7 +7,7 @@ from PySide2.QtWidgets import QMainWindow
 from loguru import logger
 
 from .mainwindow_ui import Ui_MainWindow
-from .utils import logarithmic_to_linear_volume
+from .utils import logarithmic_to_linear_volume, load_dwarf_fortress_font
 from ..gamelog import watch_game_log
 from ..sounds import yield_sounds, Sound
 from ..types_ import Path
@@ -44,6 +44,8 @@ class MainWindow(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
         self._ui.volume.valueChanged.connect(self.on_volume_changed)
+        font = load_dwarf_fortress_font()
+        self._ui.log.setFont(font)
         self._game_log_watcher: T.Optional[GameLogWatcher] = None
         self._sounds: T.List[Sound] = []
 
@@ -67,7 +69,7 @@ class MainWindow(QMainWindow):
                     break
 
     def on_volume_changed(self, volume: int) -> None:
-        linear_volume = round(logarithmic_to_linear_volume(volume))
+        linear_volume = logarithmic_to_linear_volume(volume)
         logger.trace("Adjusting main volume: {!r}", linear_volume)
         self._ui.channels.set_volume(linear_volume)
 
@@ -81,7 +83,16 @@ class MainWindow(QMainWindow):
         self._game_log_watcher.start()
 
     def load_sounds(self, path: Path) -> None:
+        channels: T.Set[T.Optional[str]] = set()
+
         for sounds_xml in yield_sounds(path):
             for sound in sounds_xml.sounds:
-                self._ui.channels.add_channel(sound.channel)
+                channels.add("Default" if sound.channel is None else sound.channel)
                 self._sounds.append(sound)
+
+        if "Default" in channels:
+            self._ui.channels.add_channel("Default")
+            channels.remove("Default")
+
+        for channel in sorted(channels):
+            self._ui.channels.add_channel(channel)

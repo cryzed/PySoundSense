@@ -4,7 +4,9 @@ import typing as T
 
 from .types_ import Path
 
-_GAME_LOG_ENCODING = "CP850"
+# https://youtu.be/snbt0PxRvpk?t=3369
+# https://github.com/Pidgeot/python-lnp/pull/171#issuecomment-646338011
+_GAME_LOG_ENCODING = "CP437"
 
 
 def watch_game_log(path: Path) -> T.Generator[str, None, None]:

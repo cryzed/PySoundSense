@@ -1,3 +1,4 @@
+from PySide2.QtGui import QFontDatabase, QFont
 from PySide2.QtMultimedia import QAudio
 
 
@@ -28,3 +29,9 @@ def add_decibel_to_linear_volume(volume: float, decibel: float) -> float:
     volume_in_decibel = linear_to_decibel_volume(volume)
     volume_in_decibel += decibel
     return decibel_to_linear_volume(volume_in_decibel)
+
+
+def load_dwarf_fortress_font() -> QFont:
+    id_ = QFontDatabase.addApplicationFont(":/DwarfFortressVan.ttf")
+    family = QFontDatabase.applicationFontFamilies(id_)[0]
+    return QFont(family, 12)
