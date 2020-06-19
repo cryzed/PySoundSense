@@ -13,7 +13,6 @@ from . import (
     LOG_RETENTION,
 )
 from .gui.mainwindow import MainWindow
-from .gui.utils import load_dwarf_fortress_font
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
