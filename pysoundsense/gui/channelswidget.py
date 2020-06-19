@@ -169,7 +169,7 @@ class ChannelsWidget(QWidget):
             threshold.addItem(member.name, member)
 
         # noinspection PyCallingNonCallable
-        @QtCore.Slot(int)
+        @QtCore.Slot(int)  # type: ignore
         def threshold_changed(index: int) -> None:
             self.on_channel_threshold_changed(name, index, threshold)
 
