@@ -87,6 +87,11 @@ class MainWindow(QMainWindow):
 
         for sounds_xml in yield_sounds(path):
             for sound in sounds_xml.sounds:
+                sound.ansi_format = sound.ansi_format or sounds_xml.default_ansi_format
+                sound.ansi_pattern = (
+                    sound.ansi_pattern or sounds_xml.default_ansi_pattern
+                )
+
                 channels.add("Default" if sound.channel is None else sound.channel)
                 self._sounds.append(sound)
 
