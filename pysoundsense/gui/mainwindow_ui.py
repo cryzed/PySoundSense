@@ -17,12 +17,13 @@ from PySide2.QtWidgets import *
 
 from .channelswidget import ChannelsWidget
 
+from  . import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(335, 384)
+        MainWindow.resize(443, 317)
         self.actionGamelog = QAction(MainWindow)
         self.actionGamelog.setObjectName(u"actionGamelog")
         self.actionSoundpack = QAction(MainWindow)
@@ -76,7 +77,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 335, 28))
+        self.menubar.setGeometry(QRect(0, 0, 443, 28))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuOpen = QMenu(self.menuFile)
@@ -100,7 +101,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.actionExit.triggered.connect(MainWindow.close)
 
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(1)
 
     # setupUi
 

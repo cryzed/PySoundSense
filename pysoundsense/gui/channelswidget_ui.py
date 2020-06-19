@@ -34,8 +34,6 @@ class Ui_ChannelsWidget(object):
 
 
         self.retranslateUi(ChannelsWidget)
-
-        QMetaObject.connectSlotsByName(ChannelsWidget)
     # setupUi
 
     def retranslateUi(self, ChannelsWidget):

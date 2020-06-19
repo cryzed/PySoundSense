@@ -40,7 +40,7 @@ def initialize(
     logger.add(sys.stderr, level=logging_level)
     logger.add(
         log_path,
-        level="TRACE",
+        level="DEBUG",
         rotation=log_rotation,
         compression=log_compression,
         retention=log_retention,
