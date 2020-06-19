@@ -13,5 +13,5 @@ exactly like the original, with the exceptions of currently missing support for:
 
 
 ## Screenshots
-![](https://i.imgur.com/vxFPhWo.png)
+![](https://i.imgur.com/j54OAdN.png)
 ![](https://i.imgur.com/VZ6yheL.png)
